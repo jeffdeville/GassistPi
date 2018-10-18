@@ -58,7 +58,7 @@ from google.assistant.library.device_helpers import register_device
 # from actions import hue_control
 # from actions import vlcplayer
 # from actions import spotify_playlist_select
-from actions import configuration
+# from actions import configuration
 # from actions import custom_action_keyword
 from threading import Thread
 from indicator import assistantindicator
@@ -74,6 +74,9 @@ try:
     FileNotFoundError
 except NameError:
     FileNotFoundError = IOError
+
+with open('{}/src/config.yaml'.format(ROOT_PATH), 'r') as conf:
+    configuration = yaml.load(conf)
 
 WARNING_NOT_REGISTERED = """
     This device is not registered. This means you will not be able to use
