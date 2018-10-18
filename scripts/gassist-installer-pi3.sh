@@ -43,9 +43,9 @@ sudo apt-get install libatlas-base-dev -y
 sed 's/#.*//' ${GIT_DIR}/Requirements/GassistPi-system-requirements.txt | xargs sudo apt-get install -y
 
 
-python3 -m venv env
+python3 -m venv ${GIT_DIR}/.env
 env/bin/python -m pip install --upgrade pip setuptools wheel
-source env/bin/activate
+source ${GIT_DIR}/.env/bin/activate
 
 pip install -r ${GIT_DIR}/Requirements/GassistPi-pip-requirements.txt
 pip install google-assistant-library==1.0.0
