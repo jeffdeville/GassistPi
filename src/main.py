@@ -270,15 +270,15 @@ class Myassistant():
             #json.dump(vollevel, f)
             #kodi.Application.SetVolume({"volume": 0})
             assistantindicator('listening')
-            if vlcplayer.is_vlc_playing():
-                if os.path.isfile("{}/.mediavolume.json".format(USER_PATH)):
-                    vlcplayer.set_vlc_volume(15)
-                else:
-                    currentvolume = vlcplayer.get_vlc_volume()
-                    print(currentvolume)
-                    with open('{}/.mediavolume.json'.format(USER_PATH), 'w') as vol:
-                        json.dump(currentvolume, vol)
-                    vlcplayer.set_vlc_volume(15)
+            # if vlcplayer.is_vlc_playing():
+            #     if os.path.isfile("{}/.mediavolume.json".format(USER_PATH)):
+            #         vlcplayer.set_vlc_volume(15)
+            #     else:
+            #         currentvolume = vlcplayer.get_vlc_volume()
+            #         print(currentvolume)
+            #         with open('{}/.mediavolume.json'.format(USER_PATH), 'w') as vol:
+            #             json.dump(currentvolume, vol)
+            #         vlcplayer.set_vlc_volume(15)
             print()
 
         if (event.type == EventType.ON_CONVERSATION_TURN_TIMEOUT or event.type == EventType.ON_NO_RESPONSE):
