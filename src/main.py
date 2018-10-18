@@ -76,6 +76,9 @@ try:
 except NameError:
     FileNotFoundError = IOError
 
+ROOT_PATH = os.path.realpath(os.path.join(__file__, '..', '..'))
+USER_PATH = os.path.realpath(os.path.join(__file__, '..', '..', '..'))
+
 with open('{}/src/config.yaml'.format(ROOT_PATH), 'r') as conf:
     configuration = yaml.load(conf)
 
@@ -92,9 +95,6 @@ logging.basicConfig(
     level=logging.DEBUG,
     format='%(asctime)s %(levelname)s %(name)s %(message)s')
 logger = logging.getLogger(__name__)
-
-ROOT_PATH = os.path.realpath(os.path.join(__file__, '..', '..'))
-USER_PATH = os.path.realpath(os.path.join(__file__, '..', '..', '..'))
 
 #Login with default kodi/kodi credentials
 #kodi = Kodi("http://localhost:8080/jsonrpc")
