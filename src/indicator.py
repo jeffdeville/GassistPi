@@ -8,6 +8,7 @@ import apa102
 import time
 import threading
 import numpy
+import yaml
 from gpiozero import LED
 try:
     import queue as Queue

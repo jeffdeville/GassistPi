@@ -64,6 +64,7 @@ from threading import Thread
 from indicator import assistantindicator
 from indicator import stoppushbutton
 from pathlib import Path
+import yaml
 # from actions import Domoticz_Device_Control
 # from actions import domoticz_control
 # from actions import domoticz_devices
