@@ -15,7 +15,7 @@
 # limitations under the License.
 
 from __future__ import print_function
-from kodijson import Kodi, PLAYER_VIDEO
+# from kodijson import Kodi, PLAYER_VIDEO
 import RPi.GPIO as GPIO
 import argparse
 import json
@@ -37,44 +37,43 @@ from google.assistant.library import Assistant
 from google.assistant.library.event import EventType
 from google.assistant.library.file_helpers import existing_file
 from google.assistant.library.device_helpers import register_device
-from actions import say
-from actions import trans
-from actions import Action
-from actions import YouTube_No_Autoplay
-from actions import YouTube_Autoplay
-from actions import stop
-from actions import radio
-from actions import ESP
-from actions import track
-from actions import feed
-from actions import kodiactions
-from actions import mutevolstatus
-from actions import gmusicselect
-from actions import refreshlists
-from actions import chromecast_play_video
-from actions import chromecast_control
-from actions import kickstarter_tracker
-from actions import getrecipe
-from actions import hue_control
-from actions import vlcplayer
-from actions import spotify_playlist_select
+# from actions import say
+# from actions import trans
+# from actions import Action
+# from actions import YouTube_No_Autoplay
+# from actions import YouTube_Autoplay
+# from actions import stop
+# from actions import radio
+# from actions import ESP
+# from actions import track
+# from actions import feed
+# from actions import kodiactions
+# from actions import mutevolstatus
+# from actions import gmusicselect
+# from actions import refreshlists
+# from actions import chromecast_play_video
+# from actions import chromecast_control
+# from actions import kickstarter_tracker
+# from actions import getrecipe
+# from actions import hue_control
+# from actions import vlcplayer
+# from actions import spotify_playlist_select
 from actions import configuration
-from actions import custom_action_keyword
+# from actions import custom_action_keyword
 from threading import Thread
 from indicator import assistantindicator
 from indicator import stoppushbutton
 from pathlib import Path
-from actions import Domoticz_Device_Control
-from actions import domoticz_control
-from actions import domoticz_devices
-from actions import gaana_playlist_select
-from actions import deezer_playlist_select
+# from actions import Domoticz_Device_Control
+# from actions import domoticz_control
+# from actions import domoticz_devices
+# from actions import gaana_playlist_select
+# from actions import deezer_playlist_select
 
 try:
     FileNotFoundError
 except NameError:
     FileNotFoundError = IOError
-
 
 WARNING_NOT_REGISTERED = """
     This device is not registered. This means you will not be able to use
@@ -84,98 +83,99 @@ WARNING_NOT_REGISTERED = """
     https://developers.google.com/assistant/sdk/guides/library/python/embed/register-device
 """
 
-logging.basicConfig(filename='/tmp/GassistPi.log', level=logging.DEBUG,
-                    format='%(asctime)s %(levelname)s %(name)s %(message)s')
-logger=logging.getLogger(__name__)
+logging.basicConfig(
+    filename='/tmp/GassistPi.log',
+    level=logging.DEBUG,
+    format='%(asctime)s %(levelname)s %(name)s %(message)s')
+logger = logging.getLogger(__name__)
 
 ROOT_PATH = os.path.realpath(os.path.join(__file__, '..', '..'))
-USER_PATH = os.path.realpath(os.path.join(__file__, '..', '..','..'))
+USER_PATH = os.path.realpath(os.path.join(__file__, '..', '..', '..'))
 
 #Login with default kodi/kodi credentials
 #kodi = Kodi("http://localhost:8080/jsonrpc")
 
 #Login with custom credentials
 # Kodi("http://IP-ADDRESS-OF-KODI:8080/jsonrpc", "username", "password")
-kodiurl=("http://"+str(configuration['Kodi']['ip'])+":"+str(configuration['Kodi']['port'])+"/jsonrpc")
-kodi = Kodi(kodiurl, configuration['Kodi']['username'], configuration['Kodi']['password'])
+# kodiurl=("http://"+str(configuration['Kodi']['ip'])+":"+str(configuration['Kodi']['port'])+"/jsonrpc")
+# kodi = Kodi(kodiurl, configuration['Kodi']['username'], configuration['Kodi']['password'])
 
-
-
-mutestopbutton=True
+mutestopbutton = True
 
 #Sonoff-Tasmota Declarations
 #Make sure that the device name assigned here does not overlap any of your smart device names in the google home app
-tasmota_devicelist=configuration['Tasmota_devicelist']['friendly-names']
-tasmota_deviceip=configuration['Tasmota_devicelist']['ipaddresses']
-tasmota_deviceportid=configuration['Tasmota_devicelist']['portID']
+# tasmota_devicelist=configuration['Tasmota_devicelist']['friendly-names']
+# tasmota_deviceip=configuration['Tasmota_devicelist']['ipaddresses']
+# tasmota_deviceportid=configuration['Tasmota_devicelist']['portID']
 
 #Magic Mirror Remote Control Declarations
-mmmip=configuration['Mmmip']
+# mmmip=configuration['Mmmip']
 
 # Check if VLC is paused
-def checkvlcpaused():
-    state=vlcplayer.state()
-    if str(state)=="State.Paused":
-        currentstate=True
-    else:
-        currentstate=False
-    return currentstate
-
-
+# def checkvlcpaused():
+#     state=vlcplayer.state()
+#     if str(state)=="State.Paused":
+#         currentstate=True
+#     else:
+#         currentstate=False
+#     return currentstate
 
 #Function to control Sonoff Tasmota Devices
-def tasmota_control(phrase,devname,devip,devportid):
-    try:
-        if custom_action_keyword['Dict']['On'] in phrase:
-            rq=requests.head("http://"+devip+"/cm?cmnd=Power"+devportid+"%20on")
-            say("Tunring on "+devname)
-        elif custom_action_keyword['Dict']['Off'] in phrase:
-            rq=requests.head("http://"+devip+"/cm?cmnd=Power"+devportid+"%20off")
-            say("Tunring off "+devname)
-    except requests.exceptions.ConnectionError:
-        say("Device not online")
+# def tasmota_control(phrase,devname,devip,devportid):
+#     try:
+#         if custom_action_keyword['Dict']['On'] in phrase:
+#             rq=requests.head("http://"+devip+"/cm?cmnd=Power"+devportid+"%20on")
+#             say("Tunring on "+devname)
+#         elif custom_action_keyword['Dict']['Off'] in phrase:
+#             rq=requests.head("http://"+devip+"/cm?cmnd=Power"+devportid+"%20off")
+#             say("Tunring off "+devname)
+#     except requests.exceptions.ConnectionError:
+#         say("Device not online")
 
 #Check if custom wakeword has been enabled
-if configuration['Wakewords']['Custom_Wakeword']=='Enabled':
-    custom_wakeword=True
+if configuration['Wakewords']['Custom_Wakeword'] == 'Enabled':
+    custom_wakeword = True
 else:
-    custom_wakeword=False
+    custom_wakeword = False
 
-models=configuration['Wakewords']['Custom_wakeword_models']
+models = configuration['Wakewords']['Custom_wakeword_models']
 
 #Custom Conversation
-numques=len(configuration['Conversation']['question'])
-numans=len(configuration['Conversation']['answer'])
+# numques=len(configuration['Conversation']['question'])
+# numans=len(configuration['Conversation']['answer'])
+
 
 class Myassistant():
-
     def __init__(self):
-        self.interrupted=False
-        self.can_start_conversation=False
-        self.assistant=None
-        self.sensitivity = [0.5]*len(models)
-        self.callbacks = [self.detected]*len(models)
+        self.interrupted = False
+        self.can_start_conversation = False
+        self.assistant = None
+        self.sensitivity = [0.5] * len(models)
+        self.callbacks = [self.detected] * len(models)
         self.detector = snowboydecoder.HotwordDetector(models, sensitivity=self.sensitivity)
         self.t1 = Thread(target=self.start_detector)
         self.t2 = Thread(target=self.pushbutton)
 
-    def signal_handler(self,signal, frame):
+    def signal_handler(self, signal, frame):
         self.interrupted = True
 
-    def interrupt_callback(self,):
+    def interrupt_callback(self, ):
         return self.interrupted
 
     def buttonsinglepress(self):
         if os.path.isfile("{}/.mute".format(USER_PATH)):
             os.system("sudo rm {}/.mute".format(USER_PATH))
             assistantindicator('unmute')
-            if configuration['Wakewords']['Ok_Google']=='Disabled':
+            if configuration['Wakewords']['Ok_Google'] == 'Disabled':
                 self.assistant.set_mic_mute(True)
             else:
                 self.assistant.set_mic_mute(False)
             # if custom_wakeword:
             #     self.t1.start()
-            subprocess.Popen(["aplay", "{}/sample-audio-files/Mic-On.wav".format(ROOT_PATH)], stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+            subprocess.Popen(["aplay", "{}/sample-audio-files/Mic-On.wav".format(ROOT_PATH)],
+                             stdin=subprocess.PIPE,
+                             stdout=subprocess.PIPE,
+                             stderr=subprocess.PIPE)
             print("Turning on the microphone")
         else:
             open('{}/.mute'.format(USER_PATH), 'a').close()
@@ -183,7 +183,10 @@ class Myassistant():
             self.assistant.set_mic_mute(True)
             # if custom_wakeword:
             #     self.thread_end(t1)
-            subprocess.Popen(["aplay", "{}/sample-audio-files/Mic-Off.wav".format(ROOT_PATH)], stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+            subprocess.Popen(["aplay", "{}/sample-audio-files/Mic-Off.wav".format(ROOT_PATH)],
+                             stdin=subprocess.PIPE,
+                             stdout=subprocess.PIPE,
+                             stderr=subprocess.PIPE)
             print("Turning off the microphone")
 
     def buttondoublepress(self):
@@ -199,25 +202,25 @@ class Myassistant():
                 GPIO.remove_event_detect(stoppushbutton)
                 now = time.time()
                 count = 1
-                GPIO.add_event_detect(stoppushbutton,GPIO.RISING)
+                GPIO.add_event_detect(stoppushbutton, GPIO.RISING)
                 while time.time() < now + 1:
-                     if GPIO.event_detected(stoppushbutton):
-                         count +=1
-                         time.sleep(.25)
+                    if GPIO.event_detected(stoppushbutton):
+                        count += 1
+                        time.sleep(.25)
                 if count == 2:
                     self.buttonsinglepress()
                     GPIO.remove_event_detect(stoppushbutton)
-                    GPIO.add_event_detect(stoppushbutton,GPIO.FALLING)
+                    GPIO.add_event_detect(stoppushbutton, GPIO.FALLING)
                 elif count == 3:
                     self.buttondoublepress()
                     GPIO.remove_event_detect(stoppushbutton)
-                    GPIO.add_event_detect(stoppushbutton,GPIO.FALLING)
+                    GPIO.add_event_detect(stoppushbutton, GPIO.FALLING)
                 elif count == 4:
                     self.buttontriplepress()
                     GPIO.remove_event_detect(stoppushbutton)
-                    GPIO.add_event_detect(stoppushbutton,GPIO.FALLING)
+                    GPIO.add_event_detect(stoppushbutton, GPIO.FALLING)
 
-    def process_device_actions(self,event, device_id):
+    def process_device_actions(self, event, device_id):
         if 'inputs' in event.args:
             for i in event.args['inputs']:
                 if i['intent'] == 'action.devices.EXECUTE':
@@ -231,8 +234,7 @@ class Myassistant():
                                         else:
                                             yield e['command'], None
 
-
-    def process_event(self,event):
+    def process_event(self, event):
         """Pretty prints events.
         Prints all events that occur with two spaces between each new
         conversation and a single space between turns of a conversation.
@@ -245,29 +247,33 @@ class Myassistant():
             self.t2.start()
             if os.path.isfile("{}/.mute".format(USER_PATH)):
                 assistantindicator('mute')
-            if (configuration['Wakewords']['Ok_Google']=='Disabled' or os.path.isfile("{}/.mute".format(USER_PATH))):
+            if (configuration['Wakewords']['Ok_Google'] == 'Disabled'
+                    or os.path.isfile("{}/.mute".format(USER_PATH))):
                 self.assistant.set_mic_mute(True)
             if custom_wakeword:
                 self.t1.start()
 
         if event.type == EventType.ON_CONVERSATION_TURN_STARTED:
             self.can_start_conversation = False
-            subprocess.Popen(["aplay", "{}/sample-audio-files/Fb.wav".format(ROOT_PATH)], stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+            subprocess.Popen(["aplay", "{}/sample-audio-files/Fb.wav".format(ROOT_PATH)],
+                             stdin=subprocess.PIPE,
+                             stdout=subprocess.PIPE,
+                             stderr=subprocess.PIPE)
             #Uncomment the following after starting the Kodi
             #status=mutevolstatus()
             #vollevel=status[1]
             #with open('{}/.volume.json'.format(USER_PATH), 'w') as f:
-                   #json.dump(vollevel, f)
+            #json.dump(vollevel, f)
             #kodi.Application.SetVolume({"volume": 0})
             assistantindicator('listening')
             if vlcplayer.is_vlc_playing():
                 if os.path.isfile("{}/.mediavolume.json".format(USER_PATH)):
                     vlcplayer.set_vlc_volume(15)
                 else:
-                    currentvolume=vlcplayer.get_vlc_volume()
+                    currentvolume = vlcplayer.get_vlc_volume()
                     print(currentvolume)
                     with open('{}/.mediavolume.json'.format(USER_PATH), 'w') as vol:
-                       json.dump(currentvolume, vol)
+                        json.dump(currentvolume, vol)
                     vlcplayer.set_vlc_volume(15)
             print()
 
@@ -276,18 +282,20 @@ class Myassistant():
             assistantindicator('off')
             #Uncomment the following after starting the Kodi
             #with open('{}/.volume.json'.format(USER_PATH), 'r') as f:
-                   #vollevel = json.load(f)
-                   #kodi.Application.SetVolume({"volume": vollevel})
-            if (configuration['Wakewords']['Ok_Google']=='Disabled' or os.path.isfile("{}/.mute".format(USER_PATH))):
-                  self.assistant.set_mic_mute(True)
+            #vollevel = json.load(f)
+            #kodi.Application.SetVolume({"volume": vollevel})
+            if (configuration['Wakewords']['Ok_Google'] == 'Disabled'
+                    or os.path.isfile("{}/.mute".format(USER_PATH))):
+                self.assistant.set_mic_mute(True)
             if os.path.isfile("{}/.mute".format(USER_PATH)):
                 assistantindicator('mute')
-            if vlcplayer.is_vlc_playing():
-                with open('{}/.mediavolume.json'.format(USER_PATH), 'r') as vol:
-                    oldvolume = json.load(vol)
-                vlcplayer.set_vlc_volume(int(oldvolume))
+            # if vlcplayer.is_vlc_playing():
+            #     with open('{}/.mediavolume.json'.format(USER_PATH), 'r') as vol:
+            #         oldvolume = json.load(vol)
+            #     vlcplayer.set_vlc_volume(int(oldvolume))
 
-        if (event.type == EventType.ON_RESPONDING_STARTED and event.args and not event.args['is_error_response']):
+        if (event.type == EventType.ON_RESPONDING_STARTED and event.args
+                and not event.args['is_error_response']):
             assistantindicator('speaking')
 
         if event.type == EventType.ON_RESPONDING_FINISHED:
@@ -298,30 +306,30 @@ class Myassistant():
 
         print(event)
 
-        if (event.type == EventType.ON_CONVERSATION_TURN_FINISHED and
-                event.args and not event.args['with_follow_on_turn']):
+        if (event.type == EventType.ON_CONVERSATION_TURN_FINISHED and event.args
+                and not event.args['with_follow_on_turn']):
             self.can_start_conversation = True
             assistantindicator('off')
-            if (configuration['Wakewords']['Ok_Google']=='Disabled' or os.path.isfile("{}/.mute".format(USER_PATH))):
+            if (configuration['Wakewords']['Ok_Google'] == 'Disabled'
+                    or os.path.isfile("{}/.mute".format(USER_PATH))):
                 self.assistant.set_mic_mute(True)
             if os.path.isfile("{}/.mute".format(USER_PATH)):
                 assistantindicator('mute')
             #Uncomment the following after starting the Kodi
             #with open('{}/.volume.json'.format(USER_PATH), 'r') as f:
-                   #vollevel = json.load(f)
-                   #kodi.Application.SetVolume({"volume": vollevel})
-            if vlcplayer.is_vlc_playing():
-                with open('{}/.mediavolume.json'.format(USER_PATH), 'r') as vol:
-                    oldvolume= json.load(vol)
-                vlcplayer.set_vlc_volume(int(oldvolume))
+            #vollevel = json.load(f)
+            #kodi.Application.SetVolume({"volume": vollevel})
+            # if vlcplayer.is_vlc_playing():
+            #     with open('{}/.mediavolume.json'.format(USER_PATH), 'r') as vol:
+            #         oldvolume= json.load(vol)
+            #     vlcplayer.set_vlc_volume(int(oldvolume))
             print()
 
         if event.type == EventType.ON_DEVICE_ACTION:
             for command, params in event.actions:
                 print('Do command', command, 'with params', str(params))
 
-
-    def register_device(self,project_id, credentials, device_model_id, device_id):
+    def register_device(self, project_id, credentials, device_model_id, device_id):
         """Register the device if needed.
         Registers a new assistant device if an instance with the given id
         does not already exists for this model.
@@ -340,15 +348,16 @@ class Myassistant():
         print(device_url, r.status_code)
         if r.status_code == 404:
             print('Registering....')
-            r = session.post(base_url, data=json.dumps({
-                'id': device_id,
-                'model_id': device_model_id,
-                'client_type': 'SDK_LIBRARY'
-            }))
+            r = session.post(
+                base_url,
+                data=json.dumps({
+                    'id': device_id,
+                    'model_id': device_model_id,
+                    'client_type': 'SDK_LIBRARY'
+                }))
             if r.status_code != 200:
                 raise Exception('failed to register device: ' + r.text)
             print('\rDevice registered.')
-
 
     def detected(self):
         if self.can_start_conversation == True:
@@ -357,42 +366,44 @@ class Myassistant():
             print('Assistant is listening....')
 
     def start_detector(self):
-        self.detector.start(detected_callback=self.callbacks,
-            interrupt_check=self.interrupt_callback,
-            sleep_time=0.03)
+        self.detector.start(
+            detected_callback=self.callbacks, interrupt_check=self.interrupt_callback, sleep_time=0.03)
 
     def main(self):
-        parser = argparse.ArgumentParser(
-            formatter_class=argparse.RawTextHelpFormatter)
-        parser.add_argument('--device-model-id', '--device_model_id', type=str,
-                            metavar='DEVICE_MODEL_ID', required=False,
-                            help='the device model ID registered with Google')
-        parser.add_argument('--project-id', '--project_id', type=str,
-                            metavar='PROJECT_ID', required=False,
-                            help='the project ID used to register this device')
-        parser.add_argument('--device-config', type=str,
-                            metavar='DEVICE_CONFIG_FILE',
-                            default=os.path.join(
-                                os.path.expanduser('~/.config'),
-                                'googlesamples-assistant',
-                                'device_config_library.json'
-                            ),
-                            help='path to store and read device configuration')
-        parser.add_argument('--credentials', type=existing_file,
-                            metavar='OAUTH2_CREDENTIALS_FILE',
-                            default=os.path.join(
-                                os.path.expanduser('~/.config'),
-                                'google-oauthlib-tool',
-                                'credentials.json'
-                            ),
-                            help='path to store and read OAuth2 credentials')
-        parser.add_argument('-v', '--version', action='version',
-                            version='%(prog)s ' + Assistant.__version_str__())
+        parser = argparse.ArgumentParser(formatter_class=argparse.RawTextHelpFormatter)
+        parser.add_argument(
+            '--device-model-id',
+            '--device_model_id',
+            type=str,
+            metavar='DEVICE_MODEL_ID',
+            required=False,
+            help='the device model ID registered with Google')
+        parser.add_argument(
+            '--project-id',
+            '--project_id',
+            type=str,
+            metavar='PROJECT_ID',
+            required=False,
+            help='the project ID used to register this device')
+        parser.add_argument(
+            '--device-config',
+            type=str,
+            metavar='DEVICE_CONFIG_FILE',
+            default=os.path.join(
+                os.path.expanduser('~/.config'), 'googlesamples-assistant', 'device_config_library.json'),
+            help='path to store and read device configuration')
+        parser.add_argument(
+            '--credentials',
+            type=existing_file,
+            metavar='OAUTH2_CREDENTIALS_FILE',
+            default=os.path.join(os.path.expanduser('~/.config'), 'google-oauthlib-tool', 'credentials.json'),
+            help='path to store and read OAuth2 credentials')
+        parser.add_argument(
+            '-v', '--version', action='version', version='%(prog)s ' + Assistant.__version_str__())
 
         args = parser.parse_args()
         with open(args.credentials, 'r') as f:
-            credentials = google.oauth2.credentials.Credentials(token=None,
-                                                                **json.load(f))
+            credentials = google.oauth2.credentials.Credentials(token=None, **json.load(f))
 
         device_model_id = None
         last_device_id = None
@@ -409,13 +420,15 @@ class Myassistant():
 
         # Re-register if "device_model_id" is given by the user and it differs
         # from what we previously registered with.
-        should_register = (
-            args.device_model_id and args.device_model_id != device_model_id)
+        should_register = (args.device_model_id and args.device_model_id != device_model_id)
 
         device_model_id = args.device_model_id or device_model_id
         with Assistant(credentials, device_model_id) as assistant:
             self.assistant = assistant
-            subprocess.Popen(["aplay", "{}/sample-audio-files/Startup.wav".format(ROOT_PATH)], stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+            subprocess.Popen(["aplay", "{}/sample-audio-files/Startup.wav".format(ROOT_PATH)],
+                             stdin=subprocess.PIPE,
+                             stdout=subprocess.PIPE,
+                             stderr=subprocess.PIPE)
             events = assistant.start()
             device_id = assistant.device_id
             print('device_model_id:', device_model_id)
@@ -424,10 +437,8 @@ class Myassistant():
             # Re-register if "device_id" is different from the last "device_id":
             if should_register or (device_id != last_device_id):
                 if args.project_id:
-                    register_device(args.project_id, credentials,
-                                    device_model_id, device_id)
-                    pathlib.Path(os.path.dirname(args.device_config)).mkdir(
-                        exist_ok=True)
+                    register_device(args.project_id, credentials, device_model_id, device_id)
+                    pathlib.Path(os.path.dirname(args.device_config)).mkdir(exist_ok=True)
                     with open(args.device_config, 'w') as f:
                         json.dump({
                             'last_device_id': device_id,
@@ -438,106 +449,106 @@ class Myassistant():
 
             for event in events:
                 self.process_event(event)
-                usrcmd=event.args
-                with open('{}/src/diyHue/config.json'.format(ROOT_PATH), 'r') as config:
-                     hueconfig = json.load(config)
-                for i in range(1,len(hueconfig['lights'])+1):
-                    try:
-                        if str(hueconfig['lights'][str(i)]['name']).lower() in str(usrcmd).lower():
-                            assistant.stop_conversation()
-                            hue_control(str(usrcmd).lower(),str(i),str(hueconfig['lights_address'][str(i)]['ip']))
-                            break
-                    except Keyerror:
-                        say('Unable to help, please check your config file')
+                usrcmd = event.args
+                # with open('{}/src/diyHue/config.json'.format(ROOT_PATH), 'r') as config:
+                #      hueconfig = json.load(config)
+                # for i in range(1,len(hueconfig['lights'])+1):
+                #     try:
+                #         if str(hueconfig['lights'][str(i)]['name']).lower() in str(usrcmd).lower():
+                #             assistant.stop_conversation()
+                #             hue_control(str(usrcmd).lower(),str(i),str(hueconfig['lights_address'][str(i)]['ip']))
+                #             break
+                #     except Keyerror:
+                #         say('Unable to help, please check your config file')
 
-                for num, name in enumerate(tasmota_devicelist):
-                    if name.lower() in str(usrcmd).lower():
-                        assistant.stop_conversation()
-                        tasmota_control(str(usrcmd).lower(), name.lower(),tasmota_deviceip[num],tasmota_deviceportid[num])
-                        break
-                for i in range(1,numques+1):
-                    try:
-                        if str(configuration['Conversation']['question'][i][0]).lower() in str(usrcmd).lower():
-                            assistant.stop_conversation()
-                            selectedans=random.sample(configuration['Conversation']['answer'][i],1)
-                            say(selectedans[0])
-                            break
-                    except Keyerror:
-                        say('Please check if the number of questions matches the number of answers')
+                # for num, name in enumerate(tasmota_devicelist):
+                #     if name.lower() in str(usrcmd).lower():
+                #         assistant.stop_conversation()
+                #         tasmota_control(str(usrcmd).lower(), name.lower(),tasmota_deviceip[num],tasmota_deviceportid[num])
+                #         break
+                # for i in range(1,numques+1):
+                #     try:
+                #         if str(configuration['Conversation']['question'][i][0]).lower() in str(usrcmd).lower():
+                #             assistant.stop_conversation()
+                #             selectedans=random.sample(configuration['Conversation']['answer'][i],1)
+                #             say(selectedans[0])
+                #             break
+                #     except Keyerror:
+                #         say('Please check if the number of questions matches the number of answers')
 
-                if Domoticz_Device_Control==True and len(domoticz_devices['result'])>0:
-                    if len(configuration['Domoticz']['Devices']['Name'])==len(configuration['Domoticz']['Devices']['Id']):
-                        for i in range(0,len(configuration['Domoticz']['Devices']['Name'])):
-                            if str(configuration['Domoticz']['Devices']['Name'][i]).lower() in str(usrcmd).lower():
-                                assistant.stop_conversation()
-                                domoticz_control(str(usrcmd).lower(),configuration['Domoticz']['Devices']['Id'][i],configuration['Domoticz']['Devices']['Name'][i])
-                                break
-                    else:
-                        say("Number of devices and the number of ids given in config file do not match")
+                # if Domoticz_Device_Control==True and len(domoticz_devices['result'])>0:
+                #     if len(configuration['Domoticz']['Devices']['Name'])==len(configuration['Domoticz']['Devices']['Id']):
+                #         for i in range(0,len(configuration['Domoticz']['Devices']['Name'])):
+                #             if str(configuration['Domoticz']['Devices']['Name'][i]).lower() in str(usrcmd).lower():
+                #                 assistant.stop_conversation()
+                #                 domoticz_control(str(usrcmd).lower(),configuration['Domoticz']['Devices']['Id'][i],configuration['Domoticz']['Devices']['Name'][i])
+                #                 break
+                #     else:
+                #         say("Number of devices and the number of ids given in config file do not match")
 
-                if (custom_action_keyword['Keywords']['Magic_mirror'][0]).lower() in str(usrcmd).lower():
-                    assistant.stop_conversation()
-                    try:
-                        mmmcommand=str(usrcmd).lower()
-                        if 'weather'.lower() in mmmcommand:
-                            if 'show'.lower() in mmmcommand:
-                                mmreq_one=requests.get("http://"+mmmip+":8080/remote?action=SHOW&module=module_2_currentweather")
-                                mmreq_two=requests.get("http://"+mmmip+":8080/remote?action=SHOW&module=module_3_currentweather")
-                            if 'hide'.lower() in mmmcommand:
-                                mmreq_one=requests.get("http://"+mmmip+":8080/remote?action=HIDE&module=module_2_currentweather")
-                                mmreq_two=requests.get("http://"+mmmip+":8080/remote?action=HIDE&module=module_3_currentweather")
-                        if 'power off'.lower() in mmmcommand:
-                            mmreq=requests.get("http://"+mmmip+":8080/remote?action=SHUTDOWN")
-                        if 'reboot'.lower() in mmmcommand:
-                            mmreq=requests.get("http://"+mmmip+":8080/remote?action=REBOOT")
-                        if 'restart'.lower() in mmmcommand:
-                            mmreq=requests.get("http://"+mmmip+":8080/remote?action=RESTART")
-                        if 'display on'.lower() in mmmcommand:
-                            mmreq=requests.get("http://"+mmmip+":8080/remote?action=MONITORON")
-                        if 'display off'.lower() in mmmcommand:
-                            mmreq=requests.get("http://"+mmmip+":8080/remote?action=MONITOROFF")
-                    except requests.exceptions.ConnectionError:
-                        say("Magic mirror not online")
-                if (custom_action_keyword['Keywords']['Recipe_pushbullet'][0]).lower() in str(usrcmd).lower():
-                    assistant.stop_conversation()
-                    ingrequest=str(usrcmd).lower()
-                    ingredientsidx=ingrequest.find('for')
-                    ingrequest=ingrequest[ingredientsidx:]
-                    ingrequest=ingrequest.replace('for',"",1)
-                    ingrequest=ingrequest.replace("'}","",1)
-                    ingrequest=ingrequest.strip()
-                    ingrequest=ingrequest.replace(" ","%20",1)
-                    getrecipe(ingrequest)
-                if (custom_action_keyword['Keywords']['Kickstarter_tracking'][0]).lower() in str(usrcmd).lower():
-                    assistant.stop_conversation()
-                    kickstarter_tracker(str(usrcmd).lower())
-                if (custom_action_keyword['Keywords']['Pi_GPIO_control'][0]).lower() in str(usrcmd).lower():
-                    assistant.stop_conversation()
-                    Action(str(usrcmd).lower())
-                if (custom_action_keyword['Keywords']['YouTube_music_stream'][0]).lower() in str(usrcmd).lower() and 'kodi' not in str(usrcmd).lower() and 'chromecast' not in str(usrcmd).lower():
-                    assistant.stop_conversation()
-                    vlcplayer.stop_vlc()
-                    if 'autoplay'.lower() in str(usrcmd).lower():
-                        YouTube_Autoplay(str(usrcmd).lower())
-                    else:
-                        YouTube_No_Autoplay(str(usrcmd).lower())
-                if (custom_action_keyword['Keywords']['Stop_music'][0]).lower() in str(usrcmd).lower():
-                    stop()
-                if 'radio'.lower() in str(usrcmd).lower():
-                    assistant.stop_conversation()
-                    radio(str(usrcmd).lower())
-                if (custom_action_keyword['Keywords']['ESP_control'][0]).lower() in str(usrcmd).lower():
-                    assistant.stop_conversation()
-                    ESP(str(usrcmd).lower())
-                if (custom_action_keyword['Keywords']['Parcel_tracking'][0]).lower() in str(usrcmd).lower():
-                    assistant.stop_conversation()
-                    track()
-                if (custom_action_keyword['Keywords']['RSS'][0]).lower() in str(usrcmd).lower() or (custom_action_keyword['Keywords']['RSS'][1]).lower() in str(usrcmd).lower():
-                    assistant.stop_conversation()
-                    feed(str(usrcmd).lower())
-                if (custom_action_keyword['Keywords']['Kodi_actions'][0]).lower() in str(usrcmd).lower():
-                    assistant.stop_conversation()
-                    kodiactions(str(usrcmd).lower())
+                # if (custom_action_keyword['Keywords']['Magic_mirror'][0]).lower() in str(usrcmd).lower():
+                #     assistant.stop_conversation()
+                #     try:
+                #         mmmcommand=str(usrcmd).lower()
+                #         if 'weather'.lower() in mmmcommand:
+                #             if 'show'.lower() in mmmcommand:
+                #                 mmreq_one=requests.get("http://"+mmmip+":8080/remote?action=SHOW&module=module_2_currentweather")
+                #                 mmreq_two=requests.get("http://"+mmmip+":8080/remote?action=SHOW&module=module_3_currentweather")
+                #             if 'hide'.lower() in mmmcommand:
+                #                 mmreq_one=requests.get("http://"+mmmip+":8080/remote?action=HIDE&module=module_2_currentweather")
+                #                 mmreq_two=requests.get("http://"+mmmip+":8080/remote?action=HIDE&module=module_3_currentweather")
+                #         if 'power off'.lower() in mmmcommand:
+                #             mmreq=requests.get("http://"+mmmip+":8080/remote?action=SHUTDOWN")
+                #         if 'reboot'.lower() in mmmcommand:
+                #             mmreq=requests.get("http://"+mmmip+":8080/remote?action=REBOOT")
+                #         if 'restart'.lower() in mmmcommand:
+                #             mmreq=requests.get("http://"+mmmip+":8080/remote?action=RESTART")
+                #         if 'display on'.lower() in mmmcommand:
+                #             mmreq=requests.get("http://"+mmmip+":8080/remote?action=MONITORON")
+                #         if 'display off'.lower() in mmmcommand:
+                #             mmreq=requests.get("http://"+mmmip+":8080/remote?action=MONITOROFF")
+                #     except requests.exceptions.ConnectionError:
+                #         say("Magic mirror not online")
+                # if (custom_action_keyword['Keywords']['Recipe_pushbullet'][0]).lower() in str(usrcmd).lower():
+                #     assistant.stop_conversation()
+                #     ingrequest=str(usrcmd).lower()
+                #     ingredientsidx=ingrequest.find('for')
+                #     ingrequest=ingrequest[ingredientsidx:]
+                #     ingrequest=ingrequest.replace('for',"",1)
+                #     ingrequest=ingrequest.replace("'}","",1)
+                #     ingrequest=ingrequest.strip()
+                #     ingrequest=ingrequest.replace(" ","%20",1)
+                #     getrecipe(ingrequest)
+                # if (custom_action_keyword['Keywords']['Kickstarter_tracking'][0]).lower() in str(usrcmd).lower():
+                #     assistant.stop_conversation()
+                #     kickstarter_tracker(str(usrcmd).lower())
+                # if (custom_action_keyword['Keywords']['Pi_GPIO_control'][0]).lower() in str(usrcmd).lower():
+                #     assistant.stop_conversation()
+                #     Action(str(usrcmd).lower())
+                # if (custom_action_keyword['Keywords']['YouTube_music_stream'][0]).lower() in str(usrcmd).lower() and 'kodi' not in str(usrcmd).lower() and 'chromecast' not in str(usrcmd).lower():
+                #     assistant.stop_conversation()
+                #     vlcplayer.stop_vlc()
+                #     if 'autoplay'.lower() in str(usrcmd).lower():
+                #         YouTube_Autoplay(str(usrcmd).lower())
+                #     else:
+                #         YouTube_No_Autoplay(str(usrcmd).lower())
+                # if (custom_action_keyword['Keywords']['Stop_music'][0]).lower() in str(usrcmd).lower():
+                #     stop()
+                # if 'radio'.lower() in str(usrcmd).lower():
+                #     assistant.stop_conversation()
+                #     radio(str(usrcmd).lower())
+                # if (custom_action_keyword['Keywords']['ESP_control'][0]).lower() in str(usrcmd).lower():
+                #     assistant.stop_conversation()
+                #     ESP(str(usrcmd).lower())
+                # if (custom_action_keyword['Keywords']['Parcel_tracking'][0]).lower() in str(usrcmd).lower():
+                #     assistant.stop_conversation()
+                #     track()
+                # if (custom_action_keyword['Keywords']['RSS'][0]).lower() in str(usrcmd).lower() or (custom_action_keyword['Keywords']['RSS'][1]).lower() in str(usrcmd).lower():
+                #     assistant.stop_conversation()
+                #     feed(str(usrcmd).lower())
+                # if (custom_action_keyword['Keywords']['Kodi_actions'][0]).lower() in str(usrcmd).lower():
+                #     assistant.stop_conversation()
+                #     kodiactions(str(usrcmd).lower())
                 # Google Assistant now comes built in with chromecast control, so custom function has been commented
                 # if 'chromecast'.lower() in str(usrcmd).lower():
                 #     assistant.stop_conversation()
@@ -545,117 +556,117 @@ class Myassistant():
                 #         chromecast_play_video(str(usrcmd).lower())
                 #     else:
                 #         chromecast_control(usrcmd)
-                if (custom_action_keyword['Keywords']['Pause_resume'][0]).lower() in str(usrcmd).lower() or (custom_action_keyword['Keywords']['Pause_resume'][1]).lower() in str(usrcmd).lower():
-                    assistant.stop_conversation()
-                    if vlcplayer.is_vlc_playing():
-                        if (custom_action_keyword['Keywords']['Pause_resume'][0]).lower() in str(usrcmd).lower():
-                            vlcplayer.pause_vlc()
-                    if checkvlcpaused():
-                        if (custom_action_keyword['Keywords']['Pause_resume'][1]).lower() in str(usrcmd).lower():
-                            vlcplayer.play_vlc()
-                    elif vlcplayer.is_vlc_playing()==False and checkvlcpaused()==False:
-                        say("Sorry nothing is playing right now")
-                if (custom_action_keyword['Keywords']['Track_change']['Next'][0]).lower() in str(usrcmd).lower() or (custom_action_keyword['Keywords']['Track_change']['Next'][1]).lower() in str(usrcmd).lower() or (custom_action_keyword['Keywords']['Track_change']['Next'][2]).lower() in str(usrcmd).lower():
-                    assistant.stop_conversation()
-                    if vlcplayer.is_vlc_playing() or checkvlcpaused()==True:
-                        vlcplayer.stop_vlc()
-                        vlcplayer.change_media_next()
-                    elif vlcplayer.is_vlc_playing()==False and checkvlcpaused()==False:
-                        say("Sorry nothing is playing right now")
-                if (custom_action_keyword['Keywords']['Track_change']['Previous'][0]).lower() in str(usrcmd).lower() or (custom_action_keyword['Keywords']['Track_change']['Previous'][1]).lower() in str(usrcmd).lower() or (custom_action_keyword['Keywords']['Track_change']['Previous'][2]).lower() in str(usrcmd).lower():
-                    assistant.stop_conversation()
-                    if vlcplayer.is_vlc_playing() or checkvlcpaused()==True:
-                        vlcplayer.stop_vlc()
-                        vlcplayer.change_media_previous()
-                    elif vlcplayer.is_vlc_playing()==False and checkvlcpaused()==False:
-                        say("Sorry nothing is playing right now")
-                if (custom_action_keyword['Keywords']['VLC_music_volume'][0]).lower() in str(usrcmd).lower():
-                    assistant.stop_conversation()
-                    if vlcplayer.is_vlc_playing()==True or checkvlcpaused()==True:
-                        if (custom_action_keyword['Dict']['Set']).lower() in str(usrcmd).lower() or (custom_action_keyword['Dict']['Change']).lower() in str(usrcmd).lower():
-                            if 'hundred'.lower() in str(usrcmd).lower() or custom_action_keyword['Dict']['Maximum'] in str(usrcmd).lower():
-                                settingvollevel=100
-                                with open('{}/.mediavolume.json'.format(USER_PATH), 'w') as vol:
-                                    json.dump(settingvollevel, vol)
-                            elif 'zero'.lower() in str(usrcmd).lower() or custom_action_keyword['Dict']['Minimum'] in str(usrcmd).lower():
-                                settingvollevel=0
-                                with open('{}/.mediavolume.json'.format(USER_PATH), 'w') as vol:
-                                    json.dump(settingvollevel, vol)
-                            else:
-                                for settingvollevel in re.findall(r"[-+]?\d*\.\d+|\d+", str(usrcmd)):
-                                    with open('{}/.mediavolume.json'.format(USER_PATH), 'w') as vol:
-                                        json.dump(settingvollevel, vol)
-                            print('Setting volume to: '+str(settingvollevel))
-                            vlcplayer.set_vlc_volume(int(settingvollevel))
-                        elif (custom_action_keyword['Dict']['Increase']).lower() in str(usrcmd).lower() or (custom_action_keyword['Dict']['Decrease']).lower() in str(usrcmd).lower() or 'reduce'.lower() in str(usrcmd).lower():
-                            if os.path.isfile("{}/.mediavolume.json".format(USER_PATH)):
-                                with open('{}/.mediavolume.json'.format(USER_PATH), 'r') as vol:
-                                    oldvollevel = json.load(vol)
-                                    for oldvollevel in re.findall(r'\b\d+\b', str(oldvollevel)):
-                                        oldvollevel=int(oldvollevel)
-                            else:
-                                oldvollevel=vlcplayer.get_vlc_volume
-                                for oldvollevel in re.findall(r"[-+]?\d*\.\d+|\d+", str(output)):
-                                    oldvollevel=int(oldvollevel)
-                            if (custom_action_keyword['Dict']['Increase']).lower() in str(usrcmd).lower():
-                                if any(char.isdigit() for char in str(usrcmd)):
-                                    for changevollevel in re.findall(r'\b\d+\b', str(usrcmd)):
-                                        changevollevel=int(changevollevel)
-                                else:
-                                    changevollevel=10
-                                newvollevel= oldvollevel+ changevollevel
-                                print(newvollevel)
-                                if int(newvollevel)>100:
-                                    settingvollevel==100
-                                elif int(newvollevel)<0:
-                                    settingvollevel==0
-                                else:
-                                    settingvollevel=newvollevel
-                                with open('{}/.mediavolume.json'.format(USER_PATH), 'w') as vol:
-                                    json.dump(settingvollevel, vol)
-                                print('Setting volume to: '+str(settingvollevel))
-                                vlcplayer.set_vlc_volume(int(settingvollevel))
-                            if (custom_action_keyword['Dict']['Decrease']).lower() in str(usrcmd).lower() or 'reduce'.lower() in str(usrcmd).lower():
-                                if any(char.isdigit() for char in str(usrcmd)):
-                                    for changevollevel in re.findall(r'\b\d+\b', str(usrcmd)):
-                                        changevollevel=int(changevollevel)
-                                else:
-                                    changevollevel=10
-                                newvollevel= oldvollevel - changevollevel
-                                print(newvollevel)
-                                if int(newvollevel)>100:
-                                    settingvollevel==100
-                                elif int(newvollevel)<0:
-                                    settingvollevel==0
-                                else:
-                                    settingvollevel=newvollevel
-                                with open('{}/.mediavolume.json'.format(USER_PATH), 'w') as vol:
-                                    json.dump(settingvollevel, vol)
-                                print('Setting volume to: '+str(settingvollevel))
-                                vlcplayer.set_vlc_volume(int(settingvollevel))
-                        else:
-                            say("Sorry I could not help you")
-                    else:
-                        say("Sorry nothing is playing right now")
-                if (custom_action_keyword['Keywords']['Music_index_refresh'][0]).lower() in str(usrcmd).lower() and (custom_action_keyword['Keywords']['Music_index_refresh'][1]).lower() in str(usrcmd).lower():
-                    assistant.stop_conversation()
-                    refreshlists()
-                if (custom_action_keyword['Keywords']['Google_music_streaming'][0]).lower() in str(usrcmd).lower():
-                    assistant.stop_conversation()
-                    vlcplayer.stop_vlc()
-                    gmusicselect(str(usrcmd).lower())
-                if (custom_action_keyword['Keywords']['Spotify_music_streaming'][0]).lower() in str(usrcmd).lower():
-                    assistant.stop_conversation()
-                    vlcplayer.stop_vlc()
-                    spotify_playlist_select(str(usrcmd).lower())
-                if (custom_action_keyword['Keywords']['Gaana_music_streaming'][0]).lower() in str(usrcmd).lower():
-                    assistant.stop_conversation()
-                    vlcplayer.stop_vlc()
-                    gaana_playlist_select(str(usrcmd).lower())
-                if (custom_action_keyword['Keywords']['Deezer_music_streaming'][0]).lower() in str(usrcmd).lower():
-                    assistant.stop_conversation()
-                    vlcplayer.stop_vlc()
-                    deezer_playlist_select(str(usrcmd).lower())
+                # if (custom_action_keyword['Keywords']['Pause_resume'][0]).lower() in str(usrcmd).lower() or (custom_action_keyword['Keywords']['Pause_resume'][1]).lower() in str(usrcmd).lower():
+                #     assistant.stop_conversation()
+                #     if vlcplayer.is_vlc_playing():
+                #         if (custom_action_keyword['Keywords']['Pause_resume'][0]).lower() in str(usrcmd).lower():
+                #             vlcplayer.pause_vlc()
+                #     if checkvlcpaused():
+                #         if (custom_action_keyword['Keywords']['Pause_resume'][1]).lower() in str(usrcmd).lower():
+                #             vlcplayer.play_vlc()
+                #     elif vlcplayer.is_vlc_playing()==False and checkvlcpaused()==False:
+                #         say("Sorry nothing is playing right now")
+                # if (custom_action_keyword['Keywords']['Track_change']['Next'][0]).lower() in str(usrcmd).lower() or (custom_action_keyword['Keywords']['Track_change']['Next'][1]).lower() in str(usrcmd).lower() or (custom_action_keyword['Keywords']['Track_change']['Next'][2]).lower() in str(usrcmd).lower():
+                #     assistant.stop_conversation()
+                #     if vlcplayer.is_vlc_playing() or checkvlcpaused()==True:
+                #         vlcplayer.stop_vlc()
+                #         vlcplayer.change_media_next()
+                #     elif vlcplayer.is_vlc_playing()==False and checkvlcpaused()==False:
+                #         say("Sorry nothing is playing right now")
+                # if (custom_action_keyword['Keywords']['Track_change']['Previous'][0]).lower() in str(usrcmd).lower() or (custom_action_keyword['Keywords']['Track_change']['Previous'][1]).lower() in str(usrcmd).lower() or (custom_action_keyword['Keywords']['Track_change']['Previous'][2]).lower() in str(usrcmd).lower():
+                #     assistant.stop_conversation()
+                #     if vlcplayer.is_vlc_playing() or checkvlcpaused()==True:
+                #         vlcplayer.stop_vlc()
+                #         vlcplayer.change_media_previous()
+                #     elif vlcplayer.is_vlc_playing()==False and checkvlcpaused()==False:
+                #         say("Sorry nothing is playing right now")
+                # if (custom_action_keyword['Keywords']['VLC_music_volume'][0]).lower() in str(usrcmd).lower():
+                #     assistant.stop_conversation()
+                #     if vlcplayer.is_vlc_playing()==True or checkvlcpaused()==True:
+                #         if (custom_action_keyword['Dict']['Set']).lower() in str(usrcmd).lower() or (custom_action_keyword['Dict']['Change']).lower() in str(usrcmd).lower():
+                #             if 'hundred'.lower() in str(usrcmd).lower() or custom_action_keyword['Dict']['Maximum'] in str(usrcmd).lower():
+                #                 settingvollevel=100
+                #                 with open('{}/.mediavolume.json'.format(USER_PATH), 'w') as vol:
+                #                     json.dump(settingvollevel, vol)
+                #             elif 'zero'.lower() in str(usrcmd).lower() or custom_action_keyword['Dict']['Minimum'] in str(usrcmd).lower():
+                #                 settingvollevel=0
+                #                 with open('{}/.mediavolume.json'.format(USER_PATH), 'w') as vol:
+                #                     json.dump(settingvollevel, vol)
+                #             else:
+                #                 for settingvollevel in re.findall(r"[-+]?\d*\.\d+|\d+", str(usrcmd)):
+                #                     with open('{}/.mediavolume.json'.format(USER_PATH), 'w') as vol:
+                #                         json.dump(settingvollevel, vol)
+                #             print('Setting volume to: '+str(settingvollevel))
+                #             vlcplayer.set_vlc_volume(int(settingvollevel))
+                #         elif (custom_action_keyword['Dict']['Increase']).lower() in str(usrcmd).lower() or (custom_action_keyword['Dict']['Decrease']).lower() in str(usrcmd).lower() or 'reduce'.lower() in str(usrcmd).lower():
+                #             if os.path.isfile("{}/.mediavolume.json".format(USER_PATH)):
+                #                 with open('{}/.mediavolume.json'.format(USER_PATH), 'r') as vol:
+                #                     oldvollevel = json.load(vol)
+                #                     for oldvollevel in re.findall(r'\b\d+\b', str(oldvollevel)):
+                #                         oldvollevel=int(oldvollevel)
+                #             else:
+                #                 oldvollevel=vlcplayer.get_vlc_volume
+                #                 for oldvollevel in re.findall(r"[-+]?\d*\.\d+|\d+", str(output)):
+                #                     oldvollevel=int(oldvollevel)
+                #             if (custom_action_keyword['Dict']['Increase']).lower() in str(usrcmd).lower():
+                #                 if any(char.isdigit() for char in str(usrcmd)):
+                #                     for changevollevel in re.findall(r'\b\d+\b', str(usrcmd)):
+                #                         changevollevel=int(changevollevel)
+                #                 else:
+                #                     changevollevel=10
+                #                 newvollevel= oldvollevel+ changevollevel
+                #                 print(newvollevel)
+                #                 if int(newvollevel)>100:
+                #                     settingvollevel==100
+                #                 elif int(newvollevel)<0:
+                #                     settingvollevel==0
+                #                 else:
+                #                     settingvollevel=newvollevel
+                #                 with open('{}/.mediavolume.json'.format(USER_PATH), 'w') as vol:
+                #                     json.dump(settingvollevel, vol)
+                #                 print('Setting volume to: '+str(settingvollevel))
+                #                 vlcplayer.set_vlc_volume(int(settingvollevel))
+                #             if (custom_action_keyword['Dict']['Decrease']).lower() in str(usrcmd).lower() or 'reduce'.lower() in str(usrcmd).lower():
+                #                 if any(char.isdigit() for char in str(usrcmd)):
+                #                     for changevollevel in re.findall(r'\b\d+\b', str(usrcmd)):
+                #                         changevollevel=int(changevollevel)
+                #                 else:
+                #                     changevollevel=10
+                #                 newvollevel= oldvollevel - changevollevel
+                #                 print(newvollevel)
+                #                 if int(newvollevel)>100:
+                #                     settingvollevel==100
+                #                 elif int(newvollevel)<0:
+                #                     settingvollevel==0
+                #                 else:
+                #                     settingvollevel=newvollevel
+                #                 with open('{}/.mediavolume.json'.format(USER_PATH), 'w') as vol:
+                #                     json.dump(settingvollevel, vol)
+                #                 print('Setting volume to: '+str(settingvollevel))
+                #                 vlcplayer.set_vlc_volume(int(settingvollevel))
+                #         else:
+                #             say("Sorry I could not help you")
+                #     else:
+                #         say("Sorry nothing is playing right now")
+                # if (custom_action_keyword['Keywords']['Music_index_refresh'][0]).lower() in str(usrcmd).lower() and (custom_action_keyword['Keywords']['Music_index_refresh'][1]).lower() in str(usrcmd).lower():
+                #     assistant.stop_conversation()
+                #     refreshlists()
+                # if (custom_action_keyword['Keywords']['Google_music_streaming'][0]).lower() in str(usrcmd).lower():
+                #     assistant.stop_conversation()
+                #     vlcplayer.stop_vlc()
+                #     gmusicselect(str(usrcmd).lower())
+                # if (custom_action_keyword['Keywords']['Spotify_music_streaming'][0]).lower() in str(usrcmd).lower():
+                #     assistant.stop_conversation()
+                #     vlcplayer.stop_vlc()
+                #     spotify_playlist_select(str(usrcmd).lower())
+                # if (custom_action_keyword['Keywords']['Gaana_music_streaming'][0]).lower() in str(usrcmd).lower():
+                #     assistant.stop_conversation()
+                #     vlcplayer.stop_vlc()
+                #     gaana_playlist_select(str(usrcmd).lower())
+                # if (custom_action_keyword['Keywords']['Deezer_music_streaming'][0]).lower() in str(usrcmd).lower():
+                #     assistant.stop_conversation()
+                #     vlcplayer.stop_vlc()
+                #     deezer_playlist_select(str(usrcmd).lower())
 
         if custom_wakeword:
             self.detector.terminate()

@@ -1,0 +1,84 @@
+{
+  "manifest": {
+    "displayName": "Award Points",
+    "invocationName": "Award Points",
+    "category": "PRODUCTIVITY"
+  },
+  "actions": [
+    {
+      "name": "com.example.actions.AwardPoints",
+      "availability": {"deviceClasses": [{"assistantSdkDevice": {} } ] },
+      "intent": {
+        "name": "com.example.intents.AwardPoints",
+        "parameters": [
+          {
+            "name": "number",
+            "type": "SchemaOrg_Number"
+          },
+          {
+            "name": "house",
+            "type": "House"
+          }
+        ],
+        "trigger": {
+          "queryPatterns": [
+            "$SchemaOrg_Number:number points to $House:house"
+          ]
+        }
+      },
+      "fulfillment": {
+        "staticFulfillment": {
+          "templatedResponse": {
+            "items": [
+              {
+                "simpleResponse": {
+                  "textToSpeech": "Awarding $number points to $house"
+                }
+              },
+              {
+                "deviceExecution": {
+                  "command": "com.example.commands.AwardPoints",
+                  "params": {
+                    "house": "$house",
+                    "number": "$number"
+                  }
+                }
+              }
+            ]
+          }
+        }
+      }
+    }
+  ],
+  "types": [
+    {
+      "name": "$House",
+      "entities": [
+        {
+          "key": "GRYFFINDOR",
+          "synonyms": [
+            "gryffindor"
+          ]
+        },
+        {
+          "key": "SLYTHERIN",
+          "synonyms": [
+            "slytherin"
+          ]
+        },
+        {
+          "key": "RAVENCLAW",
+          "synonyms": [
+            "ravenclaw"
+          ]
+        },
+        {
+          "key": "HUFFLEPUFF",
+          "synonyms": [
+            "hufflepuff"
+          ]
+        }
+      ]
+    }
+  ]
+}
