@@ -3,64 +3,72 @@
 import RPi.GPIO as GPIO
 import time
 import os
-from actions import configuration
+# from actions import configuration
 import apa102
 import time
 import threading
 import numpy
+import yaml
 from gpiozero import LED
 try:
     import queue as Queue
 except ImportError:
     import Queue as Queue
 
+ROOT_PATH = os.path.realpath(os.path.join(__file__, '..', '..'))
+USER_PATH = os.path.realpath(os.path.join(__file__, '..', '..', '..'))
 
-audiosetup=''
+with open('{}/src/config.yaml'.format(ROOT_PATH), 'r') as conf:
+    configuration = yaml.load(conf)
 
-USER_PATH = os.path.realpath(os.path.join(__file__, '..', '..','..'))
+audiosetup = ''
+
+USER_PATH = os.path.realpath(os.path.join(__file__, '..', '..', '..'))
 
 if os.path.isfile("{}/audiosetup".format(USER_PATH)):
     with open('{}/audiosetup'.format(USER_PATH)) as f:
         detected_audio_setup = f.readline().rstrip()
         print(detected_audio_setup)
-        if (detected_audio_setup=='AIY-HAT' or detected_audio_setup=='CUSTOM-VOICE-HAT'):
-            audiosetup='AIY'
-        elif (detected_audio_setup=='USB-DAC' or detected_audio_setup=='USB-MIC-HDMI' or detected_audio_setup=='USB-MIC-JACK'):
-            audiosetup='GEN'
-        elif (detected_audio_setup=='Respeaker-4-Mic'):
-            audiosetup='R4M'
-        elif (detected_audio_setup=='Respeaker-2-Mic'):
-            audiosetup='R2M'
+        if (detected_audio_setup == 'AIY-HAT' or detected_audio_setup == 'CUSTOM-VOICE-HAT'):
+            audiosetup = 'AIY'
+        elif (detected_audio_setup == 'USB-DAC' or detected_audio_setup == 'USB-MIC-HDMI'
+              or detected_audio_setup == 'USB-MIC-JACK'):
+            audiosetup = 'GEN'
+        elif (detected_audio_setup == 'Respeaker-4-Mic'):
+            audiosetup = 'R4M'
+        elif (detected_audio_setup == 'Respeaker-2-Mic'):
+            audiosetup = 'R2M'
         else:
-            audiosetup='GEN'
+            audiosetup = 'GEN'
 else:
-    audiosetup='GEN'
-
+    audiosetup = 'GEN'
 
 GPIO.setmode(GPIO.BCM)
 GPIO.setwarnings(False)
 
 #Indicators
-aiyindicator=configuration['Gpios']['AIY_indicator'][0]
-listeningindicator=configuration['Gpios']['assistant_indicators'][0]
-speakingindicator=configuration['Gpios']['assistant_indicators'][1]
+aiyindicator = configuration['Gpios']['AIY_indicator'][0]
+listeningindicator = configuration['Gpios']['assistant_indicators'][0]
+speakingindicator = configuration['Gpios']['assistant_indicators'][1]
 
 #Stopbutton
-stoppushbutton=configuration['Gpios']['stopbutton_music_AIY_pushbutton'][0]
-GPIO.setup(stoppushbutton, GPIO.IN, pull_up_down = GPIO.PUD_UP)
-GPIO.add_event_detect(stoppushbutton,GPIO.FALLING)
+stoppushbutton = configuration['Gpios']['stopbutton_music_AIY_pushbutton'][0]
+GPIO.setup(stoppushbutton, GPIO.IN, pull_up_down=GPIO.PUD_UP)
+GPIO.add_event_detect(stoppushbutton, GPIO.FALLING)
 
-if (audiosetup=='AIY'):
+if (audiosetup == 'AIY'):
     GPIO.setup(aiyindicator, GPIO.OUT)
-    led=GPIO.PWM(aiyindicator,1)
+    led = GPIO.PWM(aiyindicator, 1)
     led.start(0)
-    print('Initializing GPIO '+str(aiyindicator)+' for assistant activity indication')
-elif (audiosetup=='GEN'):
+    print('Initializing GPIO ' + str(aiyindicator) + ' for assistant activity indication')
+elif (audiosetup == 'GEN'):
     GPIO.setup(listeningindicator, GPIO.OUT)
     GPIO.setup(speakingindicator, GPIO.OUT)
     GPIO.output(listeningindicator, GPIO.LOW)
     GPIO.output(speakingindicator, GPIO.LOW)
-    print('Initializing GPIOs '+str(listeningindicator)+' and '+str(speakingindicator)+' for assistant activity indication')
+    print('Initializing GPIOs ' + str(listeningindicator) + ' and ' + str(speakingindicator) +
+          ' for assistant activity indication')
+
 
 class GoogleHomeLedPattern(object):
     def __init__(self, show=None):
@@ -73,8 +81,10 @@ class GoogleHomeLedPattern(object):
         self.pixels = self.basis * 24
 
         if not show or not callable(show):
+
             def dummy(data):
                 pass
+
             show = dummy
         self.show = show
         self.stop = False
@@ -87,7 +97,7 @@ class GoogleHomeLedPattern(object):
             pixels = basis * i
             self.show(pixels)
             time.sleep(0.005)
-        pixels =  numpy.roll(pixels, 4)
+        pixels = numpy.roll(pixels, 4)
         self.show(pixels)
         time.sleep(0.1)
         for i in range(2):
@@ -137,11 +147,12 @@ class GoogleHomeLedPattern(object):
         self.show([0] * 4 * 12)
 
     def red(self):
-        self.show([0,1,0,0] * 12)
+        self.show([0, 1, 0, 0] * 12)
 
 
 class Pixels4mic:
     PIXELS_N = 12
+
     def __init__(self, pattern=GoogleHomeLedPattern):
         self.pattern = pattern(show=self.show)
         self.dev = apa102.APA102(num_led=self.PIXELS_N)
@@ -155,14 +166,18 @@ class Pixels4mic:
 
     def wakeup(self, direction=0):
         self.last_direction = direction
+
         def f():
             self.pattern.wakeup(direction)
+
         self.put(f)
 
     def listen(self):
         if self.last_direction:
+
             def f():
                 self.pattern.wakeup(self.last_direction)
+
             self.put(f)
         else:
             self.put(self.pattern.listen)
@@ -188,14 +203,16 @@ class Pixels4mic:
 
     def show(self, data):
         for i in range(self.PIXELS_N):
-            self.dev.set_pixel(i, int(data[4*i + 1]), int(data[4*i + 2]), int(data[4*i + 3]))
+            self.dev.set_pixel(i, int(data[4 * i + 1]), int(data[4 * i + 2]), int(data[4 * i + 3]))
         self.dev.show()
 
     def mute(self):
         self.put(self.pattern.red)
 
+
 class Pixels2mic:
     PIXELS_N = 3
+
     def __init__(self):
         self.basis = [0] * 3 * self.PIXELS_N
         self.basis[0] = 1
@@ -212,6 +229,7 @@ class Pixels2mic:
     def wakeup(self, direction=0):
         def f():
             self._wakeup(direction)
+
         self.next.set()
         self.queue.put(f)
 
@@ -285,48 +303,50 @@ class Pixels2mic:
 
     def write(self, colors):
         for i in range(self.PIXELS_N):
-            self.dev.set_pixel(i, int(colors[3*i]), int(colors[3*i + 1]), int(colors[3*i + 2]))
+            self.dev.set_pixel(i, int(colors[3 * i]), int(colors[3 * i + 1]), int(colors[3 * i + 2]))
         self.dev.show()
 
     def mute(self):
-        self.write([1,0,0] * self.PIXELS_N)
+        self.write([1, 0, 0] * self.PIXELS_N)
 
-if audiosetup=='R2M':
-    pixels=Pixels2mic()
-elif audiosetup=='R4M':
-    pixels=Pixels4mic()
+
+if audiosetup == 'R2M':
+    pixels = Pixels2mic()
+elif audiosetup == 'R4M':
+    pixels = Pixels4mic()
+
 
 def assistantindicator(activity):
-    activity=activity.lower()
-    if activity=='listening':
-        if (audiosetup=='GEN'):
-            GPIO.output(speakingindicator,GPIO.LOW)
-            GPIO.output(listeningindicator,GPIO.HIGH)
-        elif (audiosetup=='R2M' or audiosetup=='R4M'):
+    activity = activity.lower()
+    if activity == 'listening':
+        if (audiosetup == 'GEN'):
+            GPIO.output(speakingindicator, GPIO.LOW)
+            GPIO.output(listeningindicator, GPIO.HIGH)
+        elif (audiosetup == 'R2M' or audiosetup == 'R4M'):
             pixels.listen()
-        elif (audiosetup=='AIY'):
+        elif (audiosetup == 'AIY'):
             led.ChangeDutyCycle(75)
-    elif activity=='speaking':
-        if (audiosetup=='GEN'):
-            GPIO.output(speakingindicator,GPIO.HIGH)
-            GPIO.output(listeningindicator,GPIO.LOW)
-        elif (audiosetup=='R2M' or audiosetup=='R4M'):
+    elif activity == 'speaking':
+        if (audiosetup == 'GEN'):
+            GPIO.output(speakingindicator, GPIO.HIGH)
+            GPIO.output(listeningindicator, GPIO.LOW)
+        elif (audiosetup == 'R2M' or audiosetup == 'R4M'):
             pixels.speak()
-        elif (audiosetup=='AIY'):
+        elif (audiosetup == 'AIY'):
             led.ChangeDutyCycle(50)
-    elif (activity=='off' or activity=='unmute'):
-        if (audiosetup=='GEN'):
-            GPIO.output(speakingindicator,GPIO.LOW)
-            GPIO.output(listeningindicator,GPIO.LOW)
-        elif (audiosetup=='R2M' or audiosetup=='R4M'):
+    elif (activity == 'off' or activity == 'unmute'):
+        if (audiosetup == 'GEN'):
+            GPIO.output(speakingindicator, GPIO.LOW)
+            GPIO.output(listeningindicator, GPIO.LOW)
+        elif (audiosetup == 'R2M' or audiosetup == 'R4M'):
             pixels.off()
-        elif (audiosetup=='AIY'):
+        elif (audiosetup == 'AIY'):
             led.ChangeDutyCycle(0)
-    elif (activity=='on' or activity=='mute'):
-        if (audiosetup=='GEN'):
-            GPIO.output(speakingindicator,GPIO.HIGH)
-            GPIO.output(listeningindicator,GPIO.HIGH)
-        elif (audiosetup=='R2M' or audiosetup=='R4M'):
+    elif (activity == 'on' or activity == 'mute'):
+        if (audiosetup == 'GEN'):
+            GPIO.output(speakingindicator, GPIO.HIGH)
+            GPIO.output(listeningindicator, GPIO.HIGH)
+        elif (audiosetup == 'R2M' or audiosetup == 'R4M'):
             pixels.mute()
-        elif (audiosetup=='AIY'):
+        elif (audiosetup == 'AIY'):
             led.ChangeDutyCycle(100)
