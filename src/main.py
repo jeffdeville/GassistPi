@@ -25,6 +25,7 @@ from google.assistant.library.device_helpers import register_device
 from threading import Thread
 from indicator import assistantindicator
 from indicator import stoppushbutton
+from hogwarts import award
 from pathlib import Path
 import yaml
 
@@ -134,20 +135,6 @@ class Myassistant():
                     self.buttontriplepress()
                     GPIO.remove_event_detect(stoppushbutton)
                     GPIO.add_event_detect(stoppushbutton, GPIO.FALLING)
-
-    def process_device_actions(self, event, device_id):
-        if 'inputs' in event.args:
-            for i in event.args['inputs']:
-                if i['intent'] == 'action.devices.EXECUTE':
-                    for c in i['payload']['commands']:
-                        for device in c['devices']:
-                            if device['id'] == device_id:
-                                if 'execution' in c:
-                                    for e in c['execution']:
-                                        if 'params' in e:
-                                            yield e['command'], e['params']
-                                        else:
-                                            yield e['command'], None
 
     def process_event(self, event):
         """Pretty prints events.
