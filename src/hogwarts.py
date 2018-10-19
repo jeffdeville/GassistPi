@@ -1,4 +1,5 @@
 import requests
+from requests.auth import HTTPBasicAuth
 import subprocess
 import os
 
@@ -13,7 +14,8 @@ def award(house, points):
                      stderr=subprocess.PIPE)
     print('sound played')
     request = {'queryResult': {'parameters': {'number': points, 'House': house}}}
-    r = requests.post('https://gryffindor.duckdns.org/award/', json=request)
+    r = requests.post(
+        'https://gryffindor.duckdns.org/award/', auth=('hogwarts', 'r%ZSFc5&01b6C9M'), json=request)
     resp = r.json()
     print(resp)
     return None
