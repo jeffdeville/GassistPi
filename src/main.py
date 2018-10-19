@@ -199,7 +199,9 @@ class Myassistant():
         if event.type == EventType.ON_DEVICE_ACTION:
             for command, params in event.actions:
                 print('Do command', command, 'with params', str(params))
-                if command = 'com.example.commands.AwardPoints':
+                if command == 'com.example.commands.AwardPoints':
+                    print('yup, this is me')
+                    print(params['house'])
                     award(params["house"], params["number"])
 
     def register_device(self, project_id, credentials, device_model_id, device_id):
