@@ -13,7 +13,7 @@ def award(house, points):
                      stderr=subprocess.PIPE)
     print('sound played')
     request = {'queryResult': {'parameters': {'number': points, 'House': house}}}
-    r = requests.post('https://gryffindor.duckdns.org/award', json=request)
+    r = requests.post('https://gryffindor.duckdns.org/award/', json=request)
     resp = r.json()
     print(resp)
     return None
