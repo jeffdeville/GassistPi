@@ -33,11 +33,6 @@
           "templatedResponse": {
             "items": [
               {
-                "simpleResponse": {
-                  "textToSpeech": "Awarding $number points to $house"
-                }
-              },
-              {
                 "deviceExecution": {
                   "command": "com.example.commands.AwardPoints",
                   "params": {
