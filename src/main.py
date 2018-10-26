@@ -183,6 +183,9 @@ class Myassistant():
         if event.type == EventType.ON_RECOGNIZING_SPEECH_FINISHED:
             assistantindicator('off')
 
+        if event.type == EventType.ON_ASSISTANT_ERROR:
+            print('here is an indication')
+
         print(event)
 
         if (event.type == EventType.ON_CONVERSATION_TURN_FINISHED and event.args
@@ -200,8 +203,6 @@ class Myassistant():
             for command, params in event.actions:
                 print('Do command', command, 'with params', str(params))
                 if command == 'com.example.commands.AwardPoints':
-                    print('yup, this is me')
-                    print(params['house'])
                     award(params["house"], params["number"])
 
     def register_device(self, project_id, credentials, device_model_id, device_id):

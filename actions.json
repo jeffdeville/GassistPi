@@ -22,7 +22,9 @@
         ],
         "trigger": {
           "queryPatterns": [
-            "$SchemaOrg_Number:number points to $House:house"
+            "$SchemaOrg_Number:number points to $House:house",
+            "$SchemaOrg_Number:number points $House:house",
+            "$House:house $SchemaOrg_Number:number points"
           ]
         }
       },
