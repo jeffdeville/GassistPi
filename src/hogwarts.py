@@ -13,9 +13,9 @@ def award(house, points):
     #                  stdout=subprocess.PIPE,
     #                  stderr=subprocess.PIPE)
     print('sound played')
-    request = {'queryResult': {'parameters': {'number': points, 'House': house}}}
-    r = requests.post(
-        'https://gryffindor.duckdns.org/award/', auth=('hogwarts', 'r%ZSFc5&01b6C9M'), json=request)
-    resp = r.json()
-    print(resp)
+    # request = {'queryResult': {'parameters': {'number': points, 'House': house}}}
+    # r = requests.post(
+    #     'https://gryffindor.duckdns.org/award/', auth=('hogwarts', 'r%ZSFc5&01b6C9M'), json=request)
+    # resp = r.json()
+    # print(resp)
     return None
