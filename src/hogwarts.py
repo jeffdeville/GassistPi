@@ -10,11 +10,11 @@ def award(house, points):
     print('hogwarts.award')
     points = int(points)
     if points in [25, 50, 75, 100]:
-        # request = {'queryResult': {'parameters': {'number': points, 'House': house}}}
-        # r = requests.post(
-        #     'https://gryffindor.duckdns.org/award/', auth=('hogwarts', 'r%ZSFc5&01b6C9M'), json=request)
-        # resp = r.json()
-        # print(resp)
+        request = {'queryResult': {'parameters': {'number': points, 'House': house}}}
+        r = requests.post(
+            'https://gryffindor.duckdns.org/award/', auth=('hogwarts', 'r%ZSFc5&01b6C9M'), json=request)
+        resp = r.json()
+        print(resp)
         print("Points awarded")
         return None
     else:
