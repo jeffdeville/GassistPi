@@ -14,7 +14,7 @@ def award(house, points):
         #     'https://gryffindor.duckdns.org/award/', auth=('hogwarts', 'r%ZSFc5&01b6C9M'), json=request)
         # resp = r.json()
         # print(resp)
-        print "Points awarded"
+        print("Points awarded")
         return None
     else:
         subprocess.Popen(["aplay", "{}/sample-audio-files/HP-SS-careful.wav".format(ROOT_PATH)],
