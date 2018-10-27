@@ -243,7 +243,7 @@ class Myassistant():
 
     def start_detector(self):
         self.detector.start(
-            detected_callback=self.callbacks, interrupt_check=self.interrupt_callback, sleep_time=0.03)
+            detected_callback=self.callbacks, interrupt_check=self.interrupt_callback, sleep_time=0.02)
 
     def main(self):
         parser = argparse.ArgumentParser(formatter_class=argparse.RawTextHelpFormatter)
