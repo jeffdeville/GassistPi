@@ -8,6 +8,7 @@ ROOT_PATH = os.path.realpath(os.path.join(__file__, '..', '..'))
 
 def award(house, points):
     print('hogwarts.award')
+    print(type(points))
     if points in [25, 50, 75, 100]:
         # request = {'queryResult': {'parameters': {'number': points, 'House': house}}}
         # r = requests.post(
